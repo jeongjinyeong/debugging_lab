@@ -102,7 +102,8 @@ static void directory_dump(Directory *d) {
 static void directory_free(Directory *d) {
     for (int i = 0; i < d->count; i++) {
         free(d->by_id[i]->name);
-        free(d->by_id[i]);                 
+        free(d->by_id[i]);
+        memset(d->by_id[i], 0xAA, 9); // tcache key를 오염시켜서 double free를 감지하지 못한다.
     }
     for (int i = 0; i < d->count; i++) {
         free(d->by_name[i]);               

@@ -52,13 +52,17 @@ static size_t arena_off = 0;
 
 static void *arena_alloc(size_t n) {
     void *p = &arena[arena_off];
+    if(arena_off+n>=ARENA_SIZE)
+        return NULL;
     arena_off += n;
     return p;
 }
 
 static char *intern(const char *s) {
-    size_t n = strlen(s) + 1;
+    size_t n = strlen(s)+1;
     char *dst = arena_alloc(n);
+    if(!dst)
+        return NULL;
     memcpy(dst, s, n);                      /* 경계를 넘은 위치면 여기서 크래시 */
     return dst;
 }
@@ -76,7 +80,10 @@ int main(void) {
     for (int i = 0; i < 100000; i++) {
         char buf[32];
         snprintf(buf, sizeof buf, "%s-%d", words[i % nwords], i);
-        last = intern(buf);                 
+        char *tmp = intern(buf);
+        if(!tmp)
+            break;
+        last = tmp;
         total += (long)strlen(last);
     }
 

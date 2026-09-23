@@ -49,18 +49,26 @@ typedef struct {
     int width;
     int height;
     int channels;
-    int nbytes;              
+    size_t nbytes;              
     unsigned char *px;
 } Image;
 
 static Image *image_new(int width, int height, int channels) {
+    if(width<=0||height<=0||channels<=0)
+        return NULL;
+    if((size_t)width>SIZE_MAX/height)
+        return NULL;
+    if((size_t)width*height>SIZE_MAX/channels)
+        return NULL;
+
     Image *img = malloc(sizeof *img);
     if (!img) { perror("malloc"); exit(1); }
+    
     img->width = width;
     img->height = height;
     img->channels = channels;
-
-    img->nbytes = width * height * channels;
+    
+    img->nbytes = (size_t)width * height * channels;
     img->px = malloc((size_t)img->nbytes);     
     if (!img->px) { perror("malloc px"); exit(1); }
     return img;
@@ -87,7 +95,7 @@ int main(void) {
      *               일 때가 3(RGB)일 때보다 오버플로가 더 쉽게 터질까?
      *               (해결 힌트: 크기 계산을 size_t 로 승격하고, 곱셈 오버플로를 검사한다) */
     Image *img = image_new(65536, 65536, 4);
-    printf("allocated nbytes(int)=%d for %dx%d x%d\n",
+    printf("allocated nbytes(int)=%ld for %dx%d x%d\n",
            img->nbytes, img->width, img->height, img->channels);
 
     image_fill(img, 0xFF);                       

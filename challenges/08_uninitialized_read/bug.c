@@ -86,7 +86,7 @@ static int **make_matrix(void) {
 
 static long row_sum(int **rows, int nrows) {
     long total = 0;
-    for (int i = 0; i < nrows; i++) {
+    for (int i = 0; i < nrows; i+=2) {
         for (int j = 0; j < COLS; j++) {
             total += rows[i][j];      
         }
@@ -103,6 +103,11 @@ int main(void) {
     long s = row_sum(rows, ROWS);     
 
     printf("sum = %ld\n", s);
+    for(int i=0;i<ROWS;i+=2){
+        for(int j=0;j<COLS;j++)
+            printf("%d ", rows[i][j]);
+        printf("\n");
+    }
 
     for (int i = 0; i < ROWS; i += 2) free(rows[i]);
     free(rows);

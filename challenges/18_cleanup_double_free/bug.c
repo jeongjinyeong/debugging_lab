@@ -71,8 +71,7 @@ static int conn_open(Conn *c, size_t bufsz) {
     for (int i = 0; i < 4; i++) c->state[i] = i;
 
     if (!handshake_ok(c)) {
-
-        free(c->tx);              
+  
         goto fail_tx;             
     }
 
